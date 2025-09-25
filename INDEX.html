@@ -1,41 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>UPI Payment</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snacks Ordering</title>
+<style>
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background: #fffae5; }
+  header { background:#ff9800; color:white; padding:20px; text-align:center; font-size:24px; font-weight:bold; }
+  .container { padding:15px; max-width:900px; margin:auto; display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+  .item { background:#fff; padding:15px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s; }
+  .item:hover { transform: translateY(-3px); }
+  .qty-control { display:flex; align-items:center; gap:5px; margin-bottom:10px; }
+  .qty-control button { width:30px; height:30px; border:none; border-radius:50%; background:#ff9800; color:white; font-weight:bold; cursor:pointer; }
+  .qty-control input { width:40px; text-align:center; font-size:14px; border-radius:5px; border:1px solid #ccc; }
+  .addons { display:flex; align-items:center; gap:5px; margin-bottom:10px; }
+  .addons button { padding:5px 10px; border:none; border-radius:5px; background:#ffd54f; cursor:pointer; font-weight:600; }
+  .addons input { width:35px; text-align:center; border:none; background:transparent; font-weight:600; }
+  .add-cart { width:100%; padding:10px; border:none; border-radius:8px; background:#ff9800; color:white; font-weight:bold; cursor:pointer; }
+  #cart { background:#fff; padding:15px; border-radius:15px; margin-top:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+  #cart ul { list-style:none; padding:0; margin:0; }
+  #cart li { margin-bottom:8px; }
+  #cart li button { margin-left:10px; background:red; color:white; border:none; padding:3px 6px; border-radius:5px; cursor:pointer; }
+  #total { font-weight:bold; margin-top:10px; }
+  #upiPay { margin-top:15px; display:inline-block; padding:10px 15px; background:#4caf50; color:white; border-radius:8px; text-decoration:none; font-weight:bold; }
+</style>
 </head>
 <body>
-  <h2>Pay with UPI</h2>
 
-  <!-- Input fields -->
-  <label>Amount (₹): </label>
-  <input type="number" id="amount" value="40"><br><br>
+<header>Snacks Ordering</header>
 
-  <label>Order Note: </label>
-  <input type="text" id="note" value="Order-20Lays-20Kurkure-B940"><br><br>
+<div class="container">
 
-  <!-- Button -->
-  <button onclick="makePayment()">Pay Now</button>
-
-  <script>
-    function makePayment() {
-      // Collect values
-      let amount = document.getElementById("amount").value;
-      let note = document.getElementById("note").value;
-
-      // Replace spaces with + (no special characters)
-      note = note.replace(/[^a-zA-Z0-9+\-]/g, '+');
-
-      // UPI details
-      let upiID = "rachitbajpai082@okicici";
-      let payeeName = "RACHIT BAJPAI";
-
-      // Build UPI URL
-      let upiLink = `upi://pay?pa=${upiID}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tn=${note}`;
-
-      // Open UPI app
-      window.location.href = upiLink;
-    }
-  </script>
-</body>
-</html>
+  <div class="item">
+    <h3>Nachos Chat - ₹50</h3>
+    <div class="qty-control">
+      <button onclick="changeQty('nachosQty',-1)">-</button>
+      <input type="number" value="0" id="nachosQty" readonly>
+      <button onclick="changeQty('nachosQty',1)">+</button>
+    </div>
+    <div class="addons">
+      <button onclick="changeQty('mayoNachos',1)">+ Mayo (+₹10)</button>
+      <button onclick="changeQty('mayoNachos',-1)">-</butt
