@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Snacks Ordering</title>
 <style>
-  body { font-family: Arial, sans-serif; margin:0; padding:0; background: #fffae5; }
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#fffae5; }
   header { background:#ff9800; color:white; padding:20px; text-align:center; font-size:24px; font-weight:bold; }
   .container { padding:15px; max-width:900px; margin:auto; display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
   .item { background:#fff; padding:15px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s; }
@@ -71,75 +71,72 @@
 </div>
 
 <script>
-let cart=[];
-let total=0;
+let cart = [];
+let total = 0;
 
 function changeQty(id, val){
-  let input=document.getElementById(id);
-  let current=parseInt(input.value);
-  current+=val;
-  if(current<0) current=0;
-  input.value=current;
+  let input = document.getElementById(id);
+  let current = parseInt(input.value);
+  current += val;
+  if(current < 0) current = 0;
+  input.value = current;
 }
 
 function addToCart(name, price, qtyId, addonId){
-  let qty=parseInt(document.getElementById(qtyId).value);
-  if(qty<=0){ alert("Select at least 1 item"); return; }
-  let addonQty=parseInt(document.getElementById(addonId).value);
-  let itemTotal=(qty*price)+(addonQty*10);
-  cart.push({name, qty, addonQty:addonQty, price, total:itemTotal});
-  total+=itemTotal;
+  let qty = parseInt(document.getElementById(qtyId).value);
+  if(qty <= 0){ alert("Select at least 1 item"); return; }
+  let addonQty = parseInt(document.getElementById(addonId).value);
+  let itemTotal = (qty*price) + (addonQty*10);
+  cart.push({name, qty, addonQty, price, total:itemTotal});
+  total += itemTotal;
   updateCart();
 }
 
 function updateCart(){
-  let ul=document.getElementById('cartItems');
-  ul.innerHTML='';
+  let ul = document.getElementById('cartItems');
+  ul.innerHTML = '';
   cart.forEach((item,index)=>{
-    let li=document.createElement('li');
-    li.innerHTML=`<b>${item.name}</b> x${item.qty} = ₹${item.qty*item.price}`;
+    let li = document.createElement('li');
+    li.innerHTML = `<b>${item.name}</b> x${item.qty} = ₹${item.qty*item.price}`;
     if(item.addonQty>0){
-      li.innerHTML+=` <br>+Mayo x${item.addonQty} = ₹${item.addonQty*10}`;
+      li.innerHTML += ` <br>Mayo x${item.addonQty} = ₹${item.addonQty*10}`;
     }
-    let btn=document.createElement('button');
-    btn.innerText='Remove';
-    btn.onclick=()=>removeItem(index);
+    let btn = document.createElement('button');
+    btn.innerText = 'Remove';
+    btn.onclick = ()=>removeItem(index);
     li.appendChild(btn);
     ul.appendChild(li);
   });
-  document.getElementById('total').innerText=total.toFixed(2);
+  document.getElementById('total').innerText = total.toFixed(2);
   updateUPILink();
 }
 
 function removeItem(index){
-  total-=cart[index].total;
+  total -= cart[index].total;
   cart.splice(index,1);
   updateCart();
 }
 
-// Minimal UPI note to avoid limit issues
 function updateUPILink(){
-  let upiId="rachitbajpai082@okicici";
-  if(total <= 0){
-    document.getElementById('upiPay').href="#";
-    return;
-  }
+  let upiId = "rachitbajpai082@okicici";
   let customerName = prompt("Enter your name for UPI note:");
   if(!customerName) customerName="Customer";
 
-  // Short note: only letters and numbers
-  let noteItems = cart.map(item=>{
-    let abbrev = item.name.split(/\s+/).map(w=>w[0].toUpperCase()).join(''); // initials
+  // Minimal clean note: Name_ItemName1xQty1_ItemName2xQty2_TotalAmount
+  let noteItems = cart.map(item => {
     let qtyStr = item.qty;
-    if(item.addonQty > 0) qtyStr += 'M'+item.addonQty; // Mayo
-    return `${abbrev}x${qtyStr}`;
-  }).join('-');
+    if(item.addonQty>0) qtyStr += "+Mayo" + item.addonQty;
+    return `${item.name}x${qtyStr}`;
+  }).join("_"); // underscore between items
 
-  let note = `${customerName}-${noteItems}-Total${total.toFixed(0)}`;
+  let note = `${customerName}_${noteItems}_Total${total.toFixed(0)}`; // no spaces, no special chars
 
-  // Build safe UPI link
-  document.getElementById('upiPay').href =
-    `upi://pay?pa=${upiId}&pn=${encodeURIComponent(customerName)}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
+  if(total>0){
+    document.getElementById('upiPay').href = 
+      `upi://pay?pa=${upiId}&pn=${encodeURIComponent(customerName)}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
+  } else {
+    document.getElementById('upiPay').href="#";
+  }
 }
 </script>
 
