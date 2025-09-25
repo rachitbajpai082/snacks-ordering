@@ -99,7 +99,7 @@ function updateCart(){
     let li=document.createElement('li');
     li.innerHTML=`<b>${item.name}</b> x${item.qty} = ₹${item.qty*item.price}`;
     if(item.addonQty>0){
-      li.innerHTML+=` <br>Mayo x${item.addonQty} = ₹${item.addonQty*10}`;
+      li.innerHTML+=` <br>+Mayo x${item.addonQty} = ₹${item.addonQty*10}`;
     }
     let btn=document.createElement('button');
     btn.innerText='Remove';
@@ -117,7 +117,7 @@ function removeItem(index){
   updateCart();
 }
 
-// Clean note UPI link
+// Minimal UPI note to avoid limit issues
 function updateUPILink(){
   let upiId="rachitbajpai082@okicici";
   if(total<=0){
@@ -127,15 +127,15 @@ function updateUPILink(){
   let customerName = prompt("Enter your name for UPI note:");
   if(!customerName) customerName="Customer";
 
-  // Minimal note: name + items + qty/addon + total
+  // Short notation: item initials + qty + mayo
   let noteItems = cart.map(item=>{
+    let abbrev = item.name.split(/\s+/).map(w=>w[0].toUpperCase()).join('');
     let qtyStr = item.qty;
-    if(item.addonQty>0) qtyStr += `+Mayo${item.addonQty}`;
-    let cleanName = item.name.replace(/\s+/g,''); // remove spaces
-    return `${cleanName}x${qtyStr}`;
-  }).join('_'); // separate items with underscore
+    if(item.addonQty>0) qtyStr += `+M${item.addonQty}`;
+    return `${abbrev}x${qtyStr}`;
+  }).join('-');
 
-  let note = `${customerName}_${noteItems}_Total${total.toFixed(0)}`;
+  let note = `${customerName}-${noteItems}-Total${total.toFixed(0)}`;
 
   document.getElementById('upiPay').href =
     `upi://pay?pa=${upiId}&pn=${encodeURIComponent(customerName)}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
