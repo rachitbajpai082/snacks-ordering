@@ -73,6 +73,7 @@
 <script>
 let cart=[];
 let total=0;
+let customerName="";
 
 function changeQty(id, val){
   let input=document.getElementById(id);
@@ -96,9 +97,9 @@ function updateCart(){
   ul.innerHTML='';
   cart.forEach((item,index)=>{
     let li=document.createElement('li');
-    li.innerHTML=`<b>${item.name}</b> x${item.qty} = ₹${item.qty*item.price}`;
+    li.innerHTML=`<b>${item.name}</b> x${item.qty}`;
     if(item.addonQty>0){
-      li.innerHTML+=` <br>Mayonnaise x${item.addonQty} = ₹${item.addonQty*10}`;
+      li.innerHTML+=` <br>Mayonnaise x${item.addonQty}`;
     }
     let btn=document.createElement('button');
     btn.innerText='Remove';
@@ -122,16 +123,22 @@ function updateUPILink(){
     return;
   }
 
-  let customerName=prompt("Enter your name for the order:");
-  if(!customerName) customerName="Anonymous";
+  // Ask customer for name only once
+  if(customerName==""){
+    let nameInput=prompt("Enter your name:");
+    if(!nameInput) customerName="Anonymous";
+    else customerName=nameInput;
+  }
 
   let upiId="rachitbajpai082@okicici";
+
+  // Simple, readable note
   let noteItems=cart.map(item=>{
     let addonText = item.addonQty>0? ` + Mayo x${item.addonQty}`:'';
     return `${item.name}${addonText} x${item.qty}`;
   }).join(', ');
 
-  let note=`Order by ${customerName}: ${noteItems} | Total ₹${total.toFixed(2)}`;
+  let note=`${customerName}: ${noteItems} | Total ₹${total.toFixed(2)}`;
 
   let amount=total.toFixed(2);
 
