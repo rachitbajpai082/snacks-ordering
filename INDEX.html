@@ -58,7 +58,7 @@
       <button onclick="changeQty('mayoMixed',-1)">-</button>
       <input type="number" id="mayoMixed" value="0" readonly>
     </div>
-    <button class="add-cart" onclick="addToCart('Mixed Lays + Kurkure + Puffcorn Chat',40,'mixedQty','mayoMixed')">Add to Cart</button>
+    <button class="add-cart" onclick="addToCart('Mixed Lays+Kurkure+Puffcorn Chat',40,'mixedQty','mayoMixed')">Add to Cart</button>
   </div>
 
 </div>
@@ -71,17 +71,18 @@
 </div>
 
 <script>
-let cart=[]; 
+let cart=[];
 let total=0;
 
-function changeQty(id,val){
+function changeQty(id, val){
   let input=document.getElementById(id);
-  let current=parseInt(input.value)+val;
+  let current=parseInt(input.value);
+  current+=val;
   if(current<0) current=0;
   input.value=current;
 }
 
-function addToCart(name,price,qtyId,addonId){
+function addToCart(name, price, qtyId, addonId){
   let qty=parseInt(document.getElementById(qtyId).value);
   if(qty<=0){ alert("Select at least 1 item"); return; }
   let addonQty=parseInt(document.getElementById(addonId).value);
@@ -96,9 +97,10 @@ function updateCart(){
   ul.innerHTML='';
   cart.forEach((item,index)=>{
     let li=document.createElement('li');
-    li.innerHTML=`<b>${item.name}</b> x${item.qty}`;
-    if(item.addonQty>0) li.innerHTML+=`, Mayo x${item.addonQty}`;
-    li.innerHTML+=` = ₹${item.total}`;
+    li.innerHTML=`<b>${item.name}</b> x${item.qty} = ₹${item.qty*item.price}`;
+    if(item.addonQty>0){
+      li.innerHTML+=` <br>Mayo x${item.addonQty} = ₹${item.addonQty*10}`;
+    }
     let btn=document.createElement('button');
     btn.innerText='Remove';
     btn.onclick=()=>removeItem(index);
@@ -117,22 +119,27 @@ function removeItem(index){
 
 function updateUPILink(){
   let upiId="rachitbajpai082@okicici";
-  let name=prompt("Enter your name for UPI note:");
-  if(!name) name="Customer";
-  
-  // create short note
-  let noteItems=cart.map(item=>{
-    let qtyStr = item.qty + (item.addonQty>0? `+Mayo${item.addonQty}`:'');
-    return `${item.name} x${qtyStr}`;
-  }).join(', ');
-  let note=`${name}: ${noteItems} | ₹${total.toFixed(2)}`;
-
-  if(total>0){
-    document.getElementById('upiPay').href=`upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
-  } else{
+  if(total<=0){ 
     document.getElementById('upiPay').href="#";
+    return;
   }
+
+  let customerName = prompt("Enter your name:");
+  if(!customerName) customerName="Customer";
+
+  // Short clean note: CustomerName | Item1xQty (+Mayo if any), Item2xQty (+Mayo if any) | Total₹Amount
+  let noteItems = cart.map(item=>{
+    let qtyStr = item.qty;
+    if(item.addonQty>0) qtyStr += `+Mayo${item.addonQty}`;
+    return `${item.name}x${qtyStr}`;
+  }).join(', ');
+
+  let note = `${customerName} | ${noteItems} | Total₹${total.toFixed(2)}`;
+
+  document.getElementById('upiPay').href = 
+    `upi://pay?pa=${upiId}&pn=${encodeURIComponent(customerName)}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
 }
 </script>
+
 </body>
 </html>
