@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snacks Ordering</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+body { font-family: 'Poppins', sans-serif; margin:0; padding:0; background: linear-gradient(135deg,#ff9800cc,#ffeb3bcc); min-height:100vh; }
+header { position:fixed; top:0; width:100%; background:#ff9800cc; color:white; padding:20px; text-align:center; font-size:24px; font-weight:600; box-shadow:0 4px 10px rgba(0,0,0,0.2); z-index:100; }
+.container { margin-top:100px; padding:15px; max-width:900px; margin-left:auto; margin-right:auto; display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:20px; }
+.item { background:#fff9; padding:15px; border-radius:15px; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; }
+.item:hover { transform: translateY(-3px); box-shadow:0 6px 18px rgba(0,0,0,0.15); }
+.item h3 { margin:0 0 10px; font-size:18px; }
+.qty-control { display:flex; align-items:center; gap:5px; margin-bottom:10px; }
+.qty-control button { width:30px; height:30px; border:none; border-radius:50%; background:#ff9800; color:white; font-weight:bold; cursor:pointer; transition: all 0.2s; }
+.qty-control button:hover { transform: scale(1.1); }
+.qty-control input { width:40px; text-align:center; font-size:14px; border-radius:5px; border:1px solid #ccc; }
+.addons { display:flex; align-items:center; gap:5px; margin-bottom:10px; }
+.addons button { padding:6px 10px; border:none; border-radius:5px; background:#ffeb3b; cursor:pointer; font-weight:600; transition: background 0.3s, transform 0.2s; }
+.addons button:hover { background:#ffd700; transform: scale(1.05); }
+.add-cart { width:100%; padding:10px; border:none; border-radius:8px; background:#ff9800; color:white; font-weight:600; cursor:pointer; transition: transform 0.2s, background 0.3s; }
+.add-cart:hover { background:#e68900; transform: scale(1.05); }
+#cart { background:#fff9; padding:15px; border-radius:15px; box-shadow:0 4px 12px rgba(0,0,0,0.1); margin-top:20px; max-width:900px; margin-left:auto; margin-right:auto; }
+#cart ul { list-style:none; padding:0; margin:0; }
+#cart li { display:flex; justify-content: space-between; align-items:flex-start; padding:5px 0; border-bottom:1px solid #eee; flex-direction:column; }
+#cart li button { padding:4px 8px; border:none; border-radius:5px; background:red; color:white; cursor:pointer; margin-top:5px; }
+#total { font-weight:600; font-size:18px; margin-top:10px; }
+#payment { text-align:center; margin-top:20px; }
+#payment a { margin:5px; padding:12px 18px; border-radius:10px; background:#4caf50; color:white; font-weight:600; text-decoration:none; display:inline-block; transition: transform 0.2s, background 0.3s; }
+#payment a:hover { background:#388e3c; transform: scale(1.05); }
+</style>
+</head>
+<body>
+<header>Snacks Ordering</header>
+
+<div class="container">
+  <!-- Nachos Chat -->
+  <div class="item">
+    <h3>Nachos Chat - ₹90</h3>
+    <div class="qty-control">
+      <button onclick="changeQty('nachosQty',-1)">-</button>
+      <input type="number" value="0" id="nachosQty" readonly>
+      <button onclick="changeQty('nachosQty',1)">+</button>
+    </div>
+    <div class="addons">
+      <button onclick="changeQty('mayoNachos',1)">+ Mayonnaise (+₹10)</button>
+      <button onclick="changeQty('mayoNachos',-1)">-</button>
+      <input type="number" id="mayoNachos" value="0" readonly style="width:35px; text-align:center; border:none; background:transparent; font-weight:600;">
+    </div>
+    <button class="add-cart" onclick="addToCart('Nachos Chat',90,'nachosQty','mayoNachos')">Add to Cart</button>
+  </div>
+
+  <!-- Mixed Lays -->
+  <div class="item">
+    <h3>Mixed Lays + Kurkure + Nachos Chat - ₹60</h3>
+    <div class="qty-control">
+      <button onclick="changeQty('mixedQty',-1)">-</button>
+      <input type="number" value="0" id="mixedQty" readonly>
+      <button onclick="changeQty('mixedQty',1)">+</button>
+    </div>
+    <div class="addons">
+      <button onclick="changeQty('mayoMixed',1)">+ Mayonnaise (+₹10)</button>
+      <button onclick="changeQty('mayoMixed',-1)">-</button>
+      <input type="number" id="mayoMixed" value="0" readonly style="width:35px; text-align:center; border:none; background:transparent; font-weight:600;">
+    </div>
+    <button class="add-cart" onclick="addToCart('Mixed Lays+Kurkure+Nachos Chat',60,'mixedQty','mayoMixed')">Add to Cart</button>
+  </div>
+</div>
+
+<div id="cart">
+  <h2>Your Cart</h2>
+  <ul id="cartItems"></ul>
+  <h3>Total: ₹<span id="total">0</span></h3>
+</div>
+
+<div id="payment">
+  <h2>Payment</h2>
+  <a id="upiPay" href="#">Pay Now via UPI</a>
+</div>
+
+<script>
+let cart=[]; let total=0;
+
+function changeQty(id,change){
+  let input=document.getElementById(id);
+  let val=parseInt(input.value)+change;
+  if(val<0) val=0;
+  input.value=val;
+}
+
+function addToCart(name,price,qtyId,addonId){
+  let qty=parseInt(document.getElementById(qtyId).value);
+  if(qty<=0) return alert("Select at least 1 item!");
+  let addonQty=parseInt(document.getElementById(addonId).value);
+  let itemTotal=(price*qty)+(addonQty*10);
+  
+  cart.push({name, qty, addonQty, price, total:itemTotal});
+  total+=itemTotal;
+  updateCart();
+  updateUPILink();
+}
+
+function updateCart(){
+  document.getElementById("cartItems").innerHTML='';
+  cart.forEach((item,index)=>{
+    let li=document.createElement('li');
+    li.innerHTML=`<b>${item.name} x${item.qty} = ₹${item.price*item.qty}</b>`;
+    if(item.addonQty>0){
+      let addonLine=document.createElement('div');
+      addonLine.innerText=`Mayonnaise x${item.addonQty} = ₹${item.addonQty*10}`;
+      li.appendChild(addonLine);
+    }
+    let btn=document.createElement('button');
+    btn.innerText='Remove';
+    btn.onclick=()=>removeFromCart(index);
+    li.appendChild(btn);
+    document.getElementById("cartItems").appendChild(li);
+  });
+  document.getElementById("total").innerText=total.toFixed(2);
+}
+
+function removeFromCart(index){
+  total-=cart[index].total;
+  cart.splice(index,1);
+  updateCart();
+  updateUPILink();
+}
+
+// Generate UPI link dynamically
+function updateUPILink(){
+  if(total<=0){ document.getElementById('upiPay').href="#"; return; }
+  let upiId="rachitbajpai082@okicici"; // <--- Yahan tera UPI ID
+  let name="Rachit Snacks";
+  let amount=total.toFixed(2);
+  let note="Snacks Order";
+  let link=`upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  document.getElementById('upiPay').href=link;
+}
+
+// Alert confirmation when clicked
+document.getElementById('upiPay').addEventListener('click',function(){
+  if(total<=0){ alert("Add items first!"); return; }
+  let customerName=prompt("Enter your name:");
+  if(!customerName){ alert("Name required!"); return; }
+  alert(`Thank you ${customerName}! Please complete payment via UPI app.\nTotal: ₹${total.toFixed(2)}\nOrder is placed!`);
+  cart=[]; total=0; updateCart(); updateUPILink();
+});
+</script>
+</body>
+</html>
