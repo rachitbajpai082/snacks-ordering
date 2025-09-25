@@ -5,24 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Snacks Ordering</title>
 <style>
-  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#fffae5; }
-  header { background:#ff9800; color:white; padding:20px; text-align:center; font-size:24px; font-weight:bold; }
-  .container { padding:15px; max-width:900px; margin:auto; display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
-  .item { background:#fff; padding:15px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s; }
-  .item:hover { transform: translateY(-3px); }
-  .qty-control { display:flex; align-items:center; gap:5px; margin-bottom:10px; }
-  .qty-control button { width:30px; height:30px; border:none; border-radius:50%; background:#ff9800; color:white; font-weight:bold; cursor:pointer; }
-  .qty-control input { width:40px; text-align:center; font-size:14px; border-radius:5px; border:1px solid #ccc; }
-  .addons { display:flex; align-items:center; gap:5px; margin-bottom:10px; }
-  .addons button { padding:5px 10px; border:none; border-radius:5px; background:#ffd54f; cursor:pointer; font-weight:600; }
-  .addons input { width:35px; text-align:center; border:none; background:transparent; font-weight:600; }
-  .add-cart { width:100%; padding:10px; border:none; border-radius:8px; background:#ff9800; color:white; font-weight:bold; cursor:pointer; }
-  #cart { background:#fff; padding:15px; border-radius:15px; margin-top:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-  #cart ul { list-style:none; padding:0; margin:0; }
-  #cart li { margin-bottom:8px; }
-  #cart li button { margin-left:10px; background:red; color:white; border:none; padding:3px 6px; border-radius:5px; cursor:pointer; }
-  #total { font-weight:bold; margin-top:10px; }
-  #upiPay { margin-top:15px; display:inline-block; padding:10px 15px; background:#4caf50; color:white; border-radius:8px; text-decoration:none; font-weight:bold; }
+body { font-family: Arial,sans-serif; background:#fffae5; margin:0; padding:0; }
+header { background:#ff9800; color:#fff; padding:20px; text-align:center; font-weight:bold; }
+.container { display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:20px; padding:15px; max-width:900px; margin:auto; }
+.item { background:#fff; padding:15px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+.qty-control { display:flex; align-items:center; gap:5px; margin:5px 0; }
+.qty-control button { width:30px; height:30px; border:none; border-radius:50%; background:#ff9800; color:white; cursor:pointer; }
+.qty-control input { width:40px; text-align:center; border:1px solid #ccc; border-radius:5px; }
+.add-cart { width:100%; padding:8px; border:none; background:#ff9800; color:white; font-weight:bold; cursor:pointer; border-radius:8px; }
+#cart { background:#fff; padding:15px; border-radius:12px; margin-top:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
+#cart ul { list-style:none; padding:0; margin:0; }
+#cart li { margin-bottom:5px; }
+#cart li button { margin-left:5px; background:red; color:white; border:none; padding:2px 5px; border-radius:5px; cursor:pointer; }
+#total { font-weight:bold; margin-top:10px; }
+#upiPay { display:inline-block; margin-top:10px; padding:10px 15px; background:#4caf50; color:white; border-radius:8px; text-decoration:none; font-weight:bold; }
 </style>
 </head>
 <body>
@@ -38,10 +34,10 @@
       <input type="number" value="0" id="nachosQty" readonly>
       <button onclick="changeQty('nachosQty',1)">+</button>
     </div>
-    <div class="addons">
+    <div class="qty-control">
       <button onclick="changeQty('mayoNachos',1)">+ Mayo (+₹10)</button>
       <button onclick="changeQty('mayoNachos',-1)">-</button>
-      <input type="number" id="mayoNachos" value="0" readonly>
+      <input type="number" value="0" id="mayoNachos" readonly>
     </div>
     <button class="add-cart" onclick="addToCart('Nachos Chat',50,'nachosQty','mayoNachos')">Add to Cart</button>
   </div>
@@ -53,88 +49,80 @@
       <input type="number" value="0" id="mixedQty" readonly>
       <button onclick="changeQty('mixedQty',1)">+</button>
     </div>
-    <div class="addons">
+    <div class="qty-control">
       <button onclick="changeQty('mayoMixed',1)">+ Mayo (+₹10)</button>
       <button onclick="changeQty('mayoMixed',-1)">-</button>
-      <input type="number" id="mayoMixed" value="0" readonly>
+      <input type="number" value="0" id="mayoMixed" readonly>
     </div>
-    <button class="add-cart" onclick="addToCart('Mixed Lays+Kurkure+Puffcorn Chat',40,'mixedQty','mayoMixed')">Add to Cart</button>
+    <button class="add-cart" onclick="addToCart('Mixed Lays + Kurkure + Puffcorn Chat',40,'mixedQty','mayoMixed')">Add to Cart</button>
   </div>
 
 </div>
 
 <div id="cart">
-  <h2>Your Cart</h2>
-  <ul id="cartItems"></ul>
-  <h3>Total: ₹<span id="total">0</span></h3>
-  <a id="upiPay" href="#" target="_blank">Pay Now via UPI</a>
+<h2>Your Cart</h2>
+<ul id="cartItems"></ul>
+<h3>Total: ₹<span id="total">0</span></h3>
+<a id="upiPay" href="#" target="_blank">Pay Now via UPI</a>
 </div>
 
 <script>
-let cart = [];
-let total = 0;
+let cart=[], total=0;
 
-function changeQty(id, val){
-  let input = document.getElementById(id);
-  let current = parseInt(input.value);
-  current += val;
-  if(current < 0) current = 0;
-  input.value = current;
+function changeQty(id,val){
+  let input=document.getElementById(id);
+  let current=parseInt(input.value)+val;
+  if(current<0) current=0;
+  input.value=current;
 }
 
-function addToCart(name, price, qtyId, addonId){
-  let qty = parseInt(document.getElementById(qtyId).value);
-  if(qty <= 0){ alert("Select at least 1 item"); return; }
-  let addonQty = parseInt(document.getElementById(addonId).value);
-  let itemTotal = (qty*price) + (addonQty*10);
-  cart.push({name, qty, addonQty, price, total:itemTotal});
-  total += itemTotal;
+function addToCart(name,price,qtyId,addonId){
+  let qty=parseInt(document.getElementById(qtyId).value);
+  if(qty<=0){ alert("Select at least 1 item"); return; }
+  let addonQty=parseInt(document.getElementById(addonId).value);
+  let itemTotal = qty*price + addonQty*10;
+  cart.push({name, qty, addonQty:addonQty, price, total:itemTotal});
+  total+=itemTotal;
   updateCart();
 }
 
 function updateCart(){
-  let ul = document.getElementById('cartItems');
-  ul.innerHTML = '';
+  let ul=document.getElementById('cartItems');
+  ul.innerHTML='';
   cart.forEach((item,index)=>{
-    let li = document.createElement('li');
-    li.innerHTML = `<b>${item.name}</b> x${item.qty} = ₹${item.qty*item.price}`;
-    if(item.addonQty>0){
-      li.innerHTML += ` <br>Mayo x${item.addonQty} = ₹${item.addonQty*10}`;
-    }
-    let btn = document.createElement('button');
-    btn.innerText = 'Remove';
-    btn.onclick = ()=>removeItem(index);
+    let li=document.createElement('li');
+    let addonText = item.addonQty>0 ? ` +Mayo${item.addonQty}` : '';
+    li.innerText = `${item.name} x${item.qty}${addonText} = ₹${item.total}`;
+    let btn=document.createElement('button');
+    btn.innerText='Remove';
+    btn.onclick=()=>removeItem(index);
     li.appendChild(btn);
     ul.appendChild(li);
   });
-  document.getElementById('total').innerText = total.toFixed(2);
+  document.getElementById('total').innerText=total.toFixed(2);
   updateUPILink();
 }
 
 function removeItem(index){
-  total -= cart[index].total;
+  total-=cart[index].total;
   cart.splice(index,1);
   updateCart();
 }
 
 function updateUPILink(){
-  let upiId = "rachitbajpai082@okicici";
-  let customerName = prompt("Enter your name for UPI note:");
-  if(!customerName) customerName="Customer";
-
-  // Minimal clean note: Name_ItemName1xQty1_ItemName2xQty2_TotalAmount
-  let noteItems = cart.map(item => {
-    let qtyStr = item.qty;
-    if(item.addonQty>0) qtyStr += "+Mayo" + item.addonQty;
-    return `${item.name}x${qtyStr}`;
-  }).join("_"); // underscore between items
-
-  let note = `${customerName}_${noteItems}_Total${total.toFixed(0)}`; // no spaces, no special chars
-
+  let upiId="rachitbajpai082@okicici";
+  let amount=total.toFixed(2);
   if(total>0){
-    document.getElementById('upiPay').href = 
-      `upi://pay?pa=${upiId}&pn=${encodeURIComponent(customerName)}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
-  } else {
+    let customerName=prompt("Enter your name for UPI note")||"Customer";
+    // Clean minimal note: only customer name + items x qty + total
+    let noteItems = cart.map(i=>{
+      let addon=i.addonQty>0 ? `+Mayo${i.addonQty}`:'';
+      return `${i.name}x${i.qty}${addon}`;
+    }).join(';');
+    let note=`${customerName};${noteItems};Total₹${amount}`;
+    document.getElementById('upiPay').href=
+      `upi://pay?pa=${upiId}&pn=${encodeURIComponent(customerName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  }else{
     document.getElementById('upiPay').href="#";
   }
 }
