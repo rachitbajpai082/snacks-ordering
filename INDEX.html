@@ -66,7 +66,7 @@
 <div id="cart">
   <h2>Your Cart</h2>
   <ul id="cartItems"></ul>
-  <h3>Total: ₹<span id="total">0</span></h3>
+  <h3>Total: ₹<span id="total">0.00</span></h3>
   <a id="upiPay" href="#" target="_blank">Pay Now via UPI</a>
 </div>
 
@@ -97,9 +97,9 @@ function updateCart(){
   ul.innerHTML='';
   cart.forEach((item,index)=>{
     let li=document.createElement('li');
-    li.innerHTML=`<b>${item.name}</b> x${item.qty} = ₹${item.qty*item.price}`;
+    li.innerHTML=`<b>${item.name}</b> x${item.qty} = ₹${(item.qty*item.price).toFixed(2)}`;
     if(item.addonQty>0){
-      li.innerHTML+=` <br>+Mayo x${item.addonQty} = ₹${item.addonQty*10}`;
+      li.innerHTML+=` <br>+Mayo x${item.addonQty} = ₹${(item.addonQty*10).toFixed(2)}`;
     }
     let btn=document.createElement('button');
     btn.innerText='Remove';
@@ -117,7 +117,7 @@ function removeItem(index){
   updateCart();
 }
 
-// ✅ Correct UPI format without note
+// ✅ Correct UPI format with 2 decimals always (xx.00)
 function updateUPILink(){
   let upiId="9569654279@ptyes"; // Your UPI ID
   if(total<=0){
@@ -125,8 +125,8 @@ function updateUPILink(){
     return;
   }
 
-  let customerName="SnackCorner"; // Fixed payee name
-  let amount=Math.round(total);   // integer amount only
+  let customerName="SnackCorner"; 
+  let amount=total.toFixed(2);  // force 2 decimal format
 
   let upiLink =
     `upi://pay?pa=${upiId}` +
