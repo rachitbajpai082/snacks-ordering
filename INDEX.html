@@ -32,7 +32,7 @@
 <div class="container">
 
   <div class="item">
-    <h3>Nachos Chat - ₹90</h3>
+    <h3>Nachos Chat - ₹50</h3>
     <div class="qty-control">
       <button onclick="changeQty('nachosQty',-1)">-</button>
       <input type="number" value="0" id="nachosQty" readonly>
@@ -43,11 +43,11 @@
       <button onclick="changeQty('mayoNachos',-1)">-</button>
       <input type="number" id="mayoNachos" value="0" readonly>
     </div>
-    <button class="add-cart" onclick="addToCart('Nachos Chat',90,'nachosQty','mayoNachos')">Add to Cart</button>
+    <button class="add-cart" onclick="addToCart('Nachos Chat',50,'nachosQty','mayoNachos')">Add to Cart</button>
   </div>
 
   <div class="item">
-    <h3>Mixed Lays + Kurkure + Nachos Chat - ₹60</h3>
+    <h3>Mixed Lays + Kurkure + Puffcorn Chat - ₹40</h3>
     <div class="qty-control">
       <button onclick="changeQty('mixedQty',-1)">-</button>
       <input type="number" value="0" id="mixedQty" readonly>
@@ -58,7 +58,7 @@
       <button onclick="changeQty('mayoMixed',-1)">-</button>
       <input type="number" id="mayoMixed" value="0" readonly>
     </div>
-    <button class="add-cart" onclick="addToCart('Mixed Lays+Kurkure+Nachos Chat',60,'mixedQty','mayoMixed')">Add to Cart</button>
+    <button class="add-cart" onclick="addToCart('Mixed Lays+Kurkure+Puffcorn Chat',40,'mixedQty','mayoMixed')">Add to Cart</button>
   </div>
 
 </div>
@@ -76,8 +76,7 @@ let total=0;
 
 function changeQty(id, val){
   let input=document.getElementById(id);
-  let current=parseInt(input.value);
-  current+=val;
+  let current=parseInt(input.value)+val;
   if(current<0) current=0;
   input.value=current;
 }
@@ -118,15 +117,25 @@ function removeItem(index){
 }
 
 function updateUPILink(){
-  let upiId="rachitbajpai082@okicici";
-  let name="Rachit Snacks";
-  let amount=total.toFixed(2);
-  let note="Snacks Order";
-  if(total>0){
-    document.getElementById('upiPay').href=`upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
-  }else{
+  if(total<=0){
     document.getElementById('upiPay').href="#";
+    return;
   }
+
+  let customerName=prompt("Enter your name for the order:");
+  if(!customerName) customerName="Anonymous";
+
+  let upiId="rachitbajpai082@okicici";
+  let noteItems=cart.map(item=>{
+    let addonText = item.addonQty>0? ` + Mayo x${item.addonQty}`:'';
+    return `${item.name}${addonText} x${item.qty}`;
+  }).join(', ');
+
+  let note=`Order by ${customerName}: ${noteItems} | Total ₹${total.toFixed(2)}`;
+
+  let amount=total.toFixed(2);
+
+  document.getElementById('upiPay').href=`upi://pay?pa=${upiId}&pn=${encodeURIComponent('Rachit Snacks')}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
 }
 </script>
 
