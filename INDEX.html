@@ -119,14 +119,14 @@ function removeItem(index){
 
 // ✅ Correct UPI format without note
 function updateUPILink(){
-  let upiId="rachitbajpai082@okicici"; // change to your UPI ID
+  let upiId="9569654279@ptyes"; // Your UPI ID
   if(total<=0){
     document.getElementById('upiPay').href="#";
     return;
   }
 
-  let customerName="SnackCorner"; // fixed payee name
-  let amount=Math.round(total);   // only integer
+  let customerName="SnackCorner"; // Fixed payee name
+  let amount=Math.round(total);   // integer amount only
 
   let upiLink =
     `upi://pay?pa=${upiId}` +
