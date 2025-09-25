@@ -117,26 +117,27 @@ function removeItem(index){
   updateCart();
 }
 
+// Clean note UPI link
 function updateUPILink(){
   let upiId="rachitbajpai082@okicici";
-  if(total<=0){ 
+  if(total<=0){
     document.getElementById('upiPay').href="#";
     return;
   }
-
-  let customerName = prompt("Enter your name:");
+  let customerName = prompt("Enter your name for UPI note:");
   if(!customerName) customerName="Customer";
 
-  // Short clean note: CustomerName | Item1xQty (+Mayo if any), Item2xQty (+Mayo if any) | Total₹Amount
+  // Minimal note: name + items + qty/addon + total
   let noteItems = cart.map(item=>{
     let qtyStr = item.qty;
     if(item.addonQty>0) qtyStr += `+Mayo${item.addonQty}`;
-    return `${item.name}x${qtyStr}`;
-  }).join(', ');
+    let cleanName = item.name.replace(/\s+/g,''); // remove spaces
+    return `${cleanName}x${qtyStr}`;
+  }).join('_'); // separate items with underscore
 
-  let note = `${customerName} | ${noteItems} | Total₹${total.toFixed(2)}`;
+  let note = `${customerName}_${noteItems}_Total${total.toFixed(0)}`;
 
-  document.getElementById('upiPay').href = 
+  document.getElementById('upiPay').href =
     `upi://pay?pa=${upiId}&pn=${encodeURIComponent(customerName)}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(note)}`;
 }
 </script>
